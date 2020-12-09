@@ -1,17 +1,15 @@
 package com.thesong.achieve;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @Author thesong
- * @Date 2020/12/8 16:53
+ * @Date 2020/12/8 19:52
  * @Version 1.0
  * @Describe
  */
-
 public class LRUMap<K, V> {
-
-    // 节点 class
     class Node<K, V> {
         public Node<K, V> pre;
         public Node<K, V> next;
@@ -19,90 +17,96 @@ public class LRUMap<K, V> {
         public V value;
 
         public Node(K key, V value) {
-            this.value = value;
             this.key = key;
+            this.value = value;
         }
     }
-
-    private Node<K, V> head;
-    private Node<K, V> tail;
     private int limit;
-    private HashMap<K, Node<K, V>> hashMap;
+    private Map<K,Node<K,V>> map = new HashMap<K,Node<K,V>>();
+    private Node head;
+    private Node tail;
 
-    public LRUMap(int limit) {
+    public LRUMap(int limit){
         this.limit = limit;
-        this.hashMap = new HashMap<>();
+        this.map = new HashMap<K,Node<K,V>>();
     }
 
-    private void addNode(Node<K, V> node) {
-        if (tail != null) {
+    private void addNode(Node<K,V> node){
+        if(tail!=null){
             tail.next = node;
             node.pre = tail;
             node.next = null;
         }
         tail = node;
-        if (head == null) {
-            head = node;
+        if(head==null){
+            head=node;
         }
     }
 
-    private K removeNode(Node<K, V> node) {
-        if (node == tail) {
-            tail = node.pre;
-        } else if (node == head) {
+    private void removeNode(Node<K,V> node){
+        if(node==tail){
+            tail = tail.pre;
+        }else if(node==head){
             head = node.next;
-        } else {
+        }else {
             node.pre.next = node.next;
             node.next.pre = node.pre;
         }
-        return node.key;
     }
 
-    private void refreshNode(Node<K, V> node) {
-        if (node == tail) {
+    private void refreshNode(Node<K,V> node){
+        if(node==tail){
             return;
         }
         removeNode(node);
         addNode(node);
     }
 
-    public void put(K k, V value) {
-        Node<K, V> node1 = hashMap.get(k);
-        if (node1 == null) {
-            if (hashMap.size() > limit) {
-                K oldKey = removeNode(head);
-                hashMap.remove(oldKey);
+    public void put(K key,V value){
+        Node<K, V> node = map.get(key);
+        if(node==null){
+            if(map.size()>=limit){
+                map.remove(head.key);
+                removeNode(head);
             }
-            Node<K, V> node = new Node<>(k, value);
+            node = new Node<K, V>(key, value);
             addNode(node);
-            hashMap.put(k, node);
+            map.put(key, node);
         } else {
-            node1.value = value;
-            refreshNode(node1);
+            node.value = value;
+            refreshNode(node);
         }
     }
 
-    public void remove(K k) {
-        Node<K, V> node = hashMap.get(k);
+    public void remove(K key){
+        Node<K, V> node = map.get(key);
         removeNode(node);
-        hashMap.remove(k);
+        map.remove(key);
     }
 
-    public V get(K k) {
-        Node<K, V> node = hashMap.get(k);
-        if (node == null) {
+    public V get(K key){
+        Node<K, V> node = map.get(key);
+        if(node==null){
             return null;
         }
         refreshNode(node);
         return node.value;
     }
 
-    public static void main(String[] args) {
-        LRUMap<String, String> map = new LRUMap<>(5);
-        for (Integer i = 0; i < 10; i++) {
-            map.put(i.toString(), "test" + i);
-            System.out.println(map.hashMap.size());
+    public int size(){
+        return map.size();
+    }
+
+    @Override
+    public String toString(){
+        StringBuilder builder = new StringBuilder();
+        Node node = head;
+        while (node!=null){
+            String nodeStr = node.key+":"+node.value+"->";
+            builder.append(nodeStr);
+            node = node.next;
         }
+        return builder.toString();
     }
 
 
