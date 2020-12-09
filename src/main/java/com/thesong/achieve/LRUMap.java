@@ -9,7 +9,7 @@ import java.util.Map;
  * @Version 1.0
  * @Describe
  */
-public class LRUMap<K, V> {
+public class LRUMap<K, V>{
     class Node<K, V> {
         public Node<K, V> pre;
         public Node<K, V> next;
