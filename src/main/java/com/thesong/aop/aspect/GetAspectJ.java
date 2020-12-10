@@ -34,7 +34,7 @@ public class GetAspectJ {
     @Around("point()")
     public Object getAround(ProceedingJoinPoint pjp) throws Throwable {
         Method method = pjp.getTarget().getClass().getMethod(pjp.getSignature().getName());
-        System.out.println(method.getName()==pjp.getSignature().getName());
+        System.out.println(method.getName().equals(pjp.getSignature().getName()));
         return pjp.proceed();
 
     }
